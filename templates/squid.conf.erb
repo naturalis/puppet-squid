@@ -1,0 +1,75 @@
+#	Squid.conf created by puppet manifest. stripped from comments
+#	-------------------------------------------------------------
+visible_hostname <%= @visible_hostname %>
+<% @http_port.each do |line| -%>
+http_port <%= line %>
+<% end -%>
+<% if @cache_mem != "256 MB" -%>
+cache_mem <%= @cache_mem %>
+<% end -%>
+
+<% if @maximum_object_size != "4096 KB" -%>
+maximum_object_size <%= @maximum_object_size %>
+<% end -%>
+
+<% if @maximum_object_size_in_memory != "512 KB" -%>
+maximum_object_size_in_memory <%= @maximum_object_size_in_memory %>
+<% end -%>
+
+# acl configuration based on acl_hash
+
+<% @acl_hash.each do |key,aclitem| 
+  _aclname = ''
+  _type = ''
+  _content = ''
+
+@acl_hash[key].each do |key,aclitem| 
+if key == 'aclname' 
+  _aclname = aclitem
+end
+if key == 'type' 
+  _type = aclitem
+end
+if key == 'content' 
+  _content = aclitem
+end
+
+end -%>
+acl <%= _aclname -%> <%= _type -%> <%= _content -%> 
+<% end -%>
+
+# cache_peer configuration based on cache_peer_hash
+
+<% @cache_peer_hash.each do |key,peeritem| 
+  _options = ''
+  _destination = ''
+  _aclname = key
+
+@cache_peer_hash[key].each do |key,peeritem| 
+if key == 'destination' 
+  _destination = peeritem
+end
+if key == 'cache_peer_options' 
+  _options = peeritem
+end
+end -%>
+cache_peer <%= _destination -%> <%= _options %> name=<%= _destination -%> 
+http_access allow <%= _aclname -%> 
+cache_peer_access <%= _destination -%> allow <%= _aclname -%> 
+<% end -%>
+
+# Leave coredumps in the first cache dir
+coredump_dir /var/spool/squid3
+	
+# Add any of your own refresh_pattern entries above these.
+refresh_pattern ^ftp:		1440	20%	10080
+refresh_pattern ^gopher:	1440	0%	1440
+refresh_pattern -i (/cgi-bin/|\?) 0	0%	0
+refresh_pattern (Release|Packages(.gz)*)$      0       20%     2880
+# example lin deb packages
+#refresh_pattern (\.deb|\.udeb)$   129600 100% 129600
+refresh_pattern .		0	20%	4320
+
+cache allow all
+
+
