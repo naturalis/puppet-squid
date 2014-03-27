@@ -2,10 +2,9 @@
 #
 #
 class squid (
-  $squid_version                  = 'latest',
   $visible_hostname               = $fqdn,
-  $http_port            		      = ['80 accel vhost'],
-  $cache_mem                  		= '256 MB',
+  $http_port                      = ['80 accel vhost'],
+  $cache_mem                      = '256 MB',
   $maximum_object_size            = '4096 KB',
   $maximum_object_size_in_memory  = '512 KB',
   $acl_hash                       = { 'acl1' => { 
@@ -32,11 +31,11 @@ class squid (
                                         'destination'         => '10.1.1.11',
                                         'cache_peer_options'  => 'parent 80 0 no-query originserver login=PASS'
                                      }
-                                    }   
+                                    }
 ) inherits ::squid::params {
 
   package { $package_name: 
-    ensure => $squid_version,
+    ensure => "installed",
   }
 
   service { $service_name:
